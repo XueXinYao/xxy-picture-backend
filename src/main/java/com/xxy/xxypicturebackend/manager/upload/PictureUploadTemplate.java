@@ -1,5 +1,6 @@
 package com.xxy.xxypicturebackend.manager.upload;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.NumberUtil;
@@ -10,7 +11,9 @@ import cn.hutool.http.HttpStatus;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.http.Method;
 import com.qcloud.cos.model.PutObjectResult;
+import com.qcloud.cos.model.ciModel.persistence.CIObject;
 import com.qcloud.cos.model.ciModel.persistence.ImageInfo;
+import com.qcloud.cos.model.ciModel.persistence.ProcessResults;
 import com.xxy.xxypicturebackend.config.CosClientConfig;
 import com.xxy.xxypicturebackend.exception.BusinessException;
 import com.xxy.xxypicturebackend.exception.ErrorCode;
@@ -68,15 +71,60 @@ public abstract class PictureUploadTemplate {
             PutObjectResult putObjectResult = cosManager.putPictureObject(uploadPath, file);
             //5 获取图片信息对象
             ImageInfo imageInfo = putObjectResult.getCiUploadResult().getOriginalInfo().getImageInfo();
+
+            //获取图片处理结果
+            ProcessResults processResults = putObjectResult.getCiUploadResult().getProcessResults();
+            List<CIObject> objectList = processResults.getObjectList();
+            if (CollUtil.isNotEmpty(objectList)){
+                //获取压缩之后的文件信息
+                CIObject compressedCiObject = objectList.get(0);
+                //默认是压缩图
+                CIObject thumbailCiObject = compressedCiObject;
+                //有生成缩略图
+                if (objectList.size()>1){
+                    compressedCiObject = objectList.get(1);
+                }
+
+                //封装压缩图的返回结果
+                return builtResult(originalFilename,compressedCiObject,thumbailCiObject);
+            }
             return builtResult(imageInfo, uploadPath, originalFilename, file);
         } catch (Exception e) {
-            log.error("图片上传到对象存储失败", e);
+            log.error("图片上传失败 - 原因: {}, 配置: {}", e.getMessage(), cosClientConfig.toString(), e);
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "上传失败");
         } finally {
             // 6  临时文件清理
             this.deleteTempFile(file);
         }
 
+    }
+
+    /**
+     *
+     * @param originalFilename
+     * @param compressedCiObject  压缩后的
+     * @param  thumbailCiObject
+     * @return
+     */
+    private UploadPictureResult builtResult(String originalFilename, CIObject compressedCiObject , CIObject thumbailCiObject) {
+        // 计算宽高
+        int picWidth = compressedCiObject.getWidth();
+        int picHeight = compressedCiObject.getHeight();
+        double picScale = NumberUtil.round(picWidth * 1.0 / picHeight, 2).doubleValue();
+        // 封装返回结果
+        UploadPictureResult uploadPictureResult = new UploadPictureResult();
+        //原图地址
+        uploadPictureResult.setUrl(cosClientConfig.getHost() + "/" + compressedCiObject.getKey());
+        uploadPictureResult.setPicName(FileUtil.mainName(originalFilename));
+        uploadPictureResult.setPicSize(Long.valueOf(compressedCiObject.getSize()));
+        uploadPictureResult.setPicWidth(picWidth);
+        uploadPictureResult.setPicHeight(picHeight);
+        uploadPictureResult.setPicScale(picScale);
+        uploadPictureResult.setPicFormat(compressedCiObject.getFormat());
+        //设置缩略图
+        uploadPictureResult.setThumbnailUrl(cosClientConfig.getHost() + "/" + thumbailCiObject.getKey());
+        // 返回可访问的地址
+        return uploadPictureResult;
     }
 
     /**

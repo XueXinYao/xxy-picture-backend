@@ -10,6 +10,16 @@ spring:
     url: jdbc:mysql://localhost:3306/xxy_picture?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false&allowPublicKeyRetrieval=true
     username: root
     password: 1111
+  servlet:
+    multipart:
+      max-file-size: 10MB
+  redis:
+    database: 0
+    host: 127.0.0.1
+    port: 6379
+    timeout: 5000
+  profiles:
+    active: local
 
 mybatis-plus:
   configuration:
@@ -21,7 +31,7 @@ mybatis-plus:
       logic-delete-field: isDeleted
       logic-delete-value: 1
       logic-not-delete-value: 0
-knife4j:
+x:
   enable: true
   openapi:
     group:
@@ -33,10 +43,8 @@ knife4j:
     version: 1.0.0
 
 #对象存储配置
-#cos:
-#  client:
-#    host:
-#    secretId:
-#    secretKey:
-#    region:
-#    bucket:
+cos:
+  client:
+    host: https://xxy-13890302957-1364108455.cos.ap-chongqing.myqcloud.com
+    region: ap-chongqing
+    bucket: xxy-13890302957-1364108455

@@ -40,8 +40,8 @@ public class FileController {
         try {
             //上传文件
             tempFile = File.createTempFile(filepath, null);
-            file.transferTo(tempFile); // 使用正确的变量名 file
-            cosManager.putObject(filepath, tempFile);
+            file.transferTo(tempFile);
+            cosManager.putPictureObject(filepath, tempFile);
             //返回可返回的地址
             return ResultUtils.success(filepath);
         } catch (IOException e) {
