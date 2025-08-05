@@ -20,7 +20,8 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
-/**Add commentMore actions
+/**
+ * Add commentMore actions
  * URL 图片上传
  */
 @Service
@@ -82,6 +83,13 @@ public class UrlPictureUpload extends PictureUploadTemplate {
     @Override
     protected String getOriginalFilename(Object inputSource) {
         String fileUrl = (String) inputSource;
+
+        //针对ai扩图的进行url处理
+        if (fileUrl.contains("result-") && fileUrl.contains("OSSAccessKeyId")) {
+            int start = fileUrl.indexOf("result-");
+            int end = fileUrl.indexOf("?OSSAccessKeyId");
+            return fileUrl.substring(start, end);
+        }
         return FileUtil.getName(fileUrl);
     }
 

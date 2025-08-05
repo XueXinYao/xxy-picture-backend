@@ -79,6 +79,12 @@ public class Picture {
     private String picFormat;
 
     /**
+     * 图片主色调
+     */
+    private String picColor;
+
+
+    /**
      * 创建用户 id
      */
     private Long userId;
@@ -127,5 +133,21 @@ public class Picture {
      */
     @TableField(exist = false)
     private Integer isDelete;
+
+    /**
+     * 将缩略图URL转换为原图URL
+     * 例如: https://example.com/2025-07-25_yVuxKoXTsGc54PF3_thumbnail.jpg
+     * 转换为: https://example.com/2025-07-25_yVuxKoXTsGc54PF3.jpg
+     *
+     * @param thumbnailUrl 缩略图URL
+     * @return 原图URL
+     */
+    public static String convertThumbnailUrlToOriginalUrl(String thumbnailUrl) {
+        if (cn.hutool.core.util.StrUtil.isBlank(thumbnailUrl)) {
+            return thumbnailUrl;
+        }
+        // 查找 "_thumbnail." 模式并替换为 "."
+        return thumbnailUrl.replaceFirst("_thumbnail\\.([^.]+)$", ".$1");
+    }
     private static final long serialVersionUID = 1L;
 }

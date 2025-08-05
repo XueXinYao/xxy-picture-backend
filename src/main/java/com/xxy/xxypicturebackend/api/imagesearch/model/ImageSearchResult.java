@@ -1,4 +1,4 @@
-package com.xxy.xxypicturebackend.api;
+package com.xxy.xxypicturebackend.api.imagesearch.model;
 
 import lombok.Data;
 

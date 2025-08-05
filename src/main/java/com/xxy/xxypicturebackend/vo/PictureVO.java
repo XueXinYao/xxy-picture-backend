@@ -82,6 +82,10 @@ public class PictureVO implements Serializable {
      * 图片空间 id
      */
     private Long spaceId;
+    /**
+     * 图片主色调
+     */
+    private String picColor;
 
     /**
      * 创建时间

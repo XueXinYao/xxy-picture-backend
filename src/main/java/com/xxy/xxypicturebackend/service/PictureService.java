@@ -2,6 +2,7 @@ package com.xxy.xxypicturebackend.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.xxy.xxypicturebackend.api.aliyun.model.CreateOutPaintingTaskResponse;
 import com.xxy.xxypicturebackend.mdoel.dto.picture.*;
 import com.xxy.xxypicturebackend.mdoel.entity.Picture;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -10,6 +11,7 @@ import com.xxy.xxypicturebackend.vo.PictureVO;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
 * @author xuexinyao
@@ -88,4 +90,18 @@ public interface PictureService extends IService<Picture> {
      * @param picture
      */
     void checkPictureAuth(User LoginUser, Picture picture);
+
+    /**
+     * 颜色搜素
+     * @param spaceId
+     * @param picColor
+     * @param loginUser
+     * @return
+     */
+    List<PictureVO> searchPictureByColor(Long spaceId, String picColor, User loginUser);
+
+
+    void editPictureByBatch(PictureEditByBatchRequest pictureEditByBatchRequest, User loginUser);
+
+    CreateOutPaintingTaskResponse createPictureOutPaintTask(CreatePictureOutPaintingTaskRequest createPictureOutPaintingTaskRequest, User loginUser);
 }

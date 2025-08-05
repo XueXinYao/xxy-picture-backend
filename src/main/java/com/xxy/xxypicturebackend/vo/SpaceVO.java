@@ -24,6 +24,8 @@ public class SpaceVO implements Serializable {
      */
     private Integer spaceLevel;
 
+    private Integer spaceType;
+
     /**
      * 空间图片的最大总大小
      */
